@@ -1,15 +1,66 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// ========================================
+// @file       schema.prisma
+// @project    To-Do App (Prueba Técnica)
+// @module     Backend - Prisma ORM
+// @purpose    Definición del esquema de la base de datos
+// @description
+//   Este archivo define los modelos de datos
+//   "User" y "Task" para la aplicación To-Do App.
+//   Prisma usa este esquema para crear y mantener
+//   automáticamente la base de datos SQLite,
+//   generando el cliente ORM para interactuar
+//   con NestJS.
+// @author     Ivan Medina
+// @created    Septiembre 2025
+// ========================================
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// ----------------------------------------
+// Generador de cliente Prisma
+// Nos permite usar Prisma Client en el código
+// para interactuar con la base de datos.
+// ----------------------------------------
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
+// ----------------------------------------
+// Fuente de datos
+// Usamos SQLite como motor de base de datos.
+// La ruta real se obtiene desde el archivo .env
+// (DATABASE_URL="file:./dev.db").
+// ----------------------------------------
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------
+// Modelo de Usuario (User)
+// Representa a cada usuario registrado en el sistema.
+// Relación 1:N → Un usuario puede tener muchas tareas.
+// ----------------------------------------
+model User {
+  id        Int      @id @default(autoincrement()) // ID único autoincremental
+  email     String   @unique                      // Email único
+  password  String                                // Contraseña (se almacenará encriptada)
+  name      String                                // Nombre completo
+  tasks     Task[]                                // Relación con Task (1 usuario = muchas tareas)
+  createdAt DateTime @default(now())              // Fecha de creación automática
+}
+
+// ----------------------------------------
+// Modelo de Tarea (Task)
+// Representa cada tarea del sistema.
+// Relación N:1 → Cada tarea pertenece a un usuario.
+// ----------------------------------------
+model Task {
+  id          Int      @id @default(autoincrement()) // ID único autoincremental
+  title       String                                // Título de la tarea
+  description String?                               // Descripción opcional
+  completed   Boolean  @default(false)              // Estado: completada o pendiente
+  dueDate     DateTime?                             // Fecha de vencimiento opcional
+  category    String?                               // Categoría opcional (ej: trabajo, personal)
+  userId      Int                                   // Clave foránea del usuario
+  user        User     @relation(fields: [userId], references: [id]) // Relación con User
+  createdAt   DateTime @default(now())              // Fecha de creación automática
 }
