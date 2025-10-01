@@ -4,12 +4,18 @@
 // @module     Backend - Auth (DTO)
 // @purpose    Datos de entrada para /auth/login
 // @description
-//   Este define los campos que el usuario debe
-//   enviar para iniciar sesión en el sistema.
-//   - email: correo electrónico registrado
-//   - password: contraseña en texto plano (será validada)
+//   Este DTO valida que el usuario envíe:
+//   - email válido (formato correcto)
+//   - password obligatorio (mínimo 6 caracteres)
 // ========================================
+
+import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+
 export class LoginDto {
-  email!: string;     // Correo del usuario
-  password!: string;  // Contraseña del usuario
+  @IsEmail({}, { message: 'El email debe tener un formato válido' })
+  email!: string; // Correo electrónico registrado
+
+  @IsNotEmpty({ message: 'La contraseña es obligatoria' })
+  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
+  password!: string; // Contraseña del usuario
 }
