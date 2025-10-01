@@ -33,6 +33,8 @@ import {
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 // Todas las rutas de este controlador están protegidas por JWT
 @UseGuards(JwtAuthGuard)
@@ -43,13 +45,13 @@ export class TasksController {
   /**
    * @route   POST /tasks
    * @desc    Crea una nueva tarea vinculada al usuario autenticado
-   * @body    { title: string, description?: string, category?: string, dueDate?: Date }
+   * @body    CreateTaskDto (title, description?, category?, dueDate?)
    * @return  La tarea creada con ID asignado
    */
   @Post()
-  create(@Req() req: any, @Body() body: any) {
+  create(@Req() req: any, @Body() dto: CreateTaskDto) {
     const userId = req.user.userId; // ID del usuario desde el JWT
-    return this.tasksService.create({ ...body, userId });
+    return this.tasksService.create({ ...dto, userId });
   }
 
   /**
@@ -86,12 +88,12 @@ export class TasksController {
    * @route   PUT /tasks/:id
    * @desc    Actualiza los campos de una tarea existente
    * @param   id → número de la tarea
-   * @body    Campos a actualizar (title, description, etc.)
+   * @body    UpdateTaskDto (campos opcionales validados)
    * @return  La tarea actualizada
    */
   @Put(':id')
-  update(@Param('id') id: string, @Body() body: any) {
-    return this.tasksService.update(+id, body);
+  update(@Param('id') id: string, @Body() dto: UpdateTaskDto) {
+    return this.tasksService.update(+id, dto);
   }
 
   /**
