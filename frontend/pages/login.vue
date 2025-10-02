@@ -5,61 +5,88 @@
 @purpose    Página de autenticación con login/registro en el mismo formulario
 @description
   - Alterna entre modo login y registro
-  - Cambia textos, colores y flujo sin cambiar de página
+  - Incluye animación de transición entre pantallas
   - Valida email y contraseña mínima
-  - Usa SweetAlert2 para notificaciones bonitas
+  - Usa SweetAlert2 para notificaciones modernas
 ======================================== -->
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+  <div class="min-h-screen flex items-center justify-center bg-gray-900">
     <div 
-      class="w-full max-w-md p-8 space-y-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-all duration-500"
+      class="w-full max-w-md p-8 space-y-6 bg-gray-800 rounded-xl shadow-md transition-all duration-500"
     >
-      <!-- Título dinámico -->
-      <h2 class="text-2xl font-bold text-center"
-          :class="isRegister ? 'text-green-600' : 'text-blue-600'">
-        {{ isRegister ? "Crea tu Cuenta" : "Bienvenido, Inicia Sesión" }}
-      </h2>
+      <!-- Transición -->
+      <Transition name="fade-slide" mode="out-in">
+        <div :key="isRegister">
+          <!-- Título dinámico -->
+          <h2 class="text-2xl font-bold text-center mb-4"
+              :class="isRegister ? 'text-green-400' : 'text-blue-400'">
+            {{ isRegister ? "Crea tu Cuenta" : "Bienvenido, Inicia Sesión" }}
+          </h2>
 
-      <!-- Formulario -->
-      <form @submit.prevent="isRegister ? onRegister() : onLogin()" class="space-y-4">
-        <!-- Nombre solo en registro -->
-        <div v-if="isRegister">
-          <label class="block text-sm font-medium">Nombre</label>
-          <input v-model="name" type="text" required
-            class="w-full p-2 rounded-md border dark:bg-gray-700 dark:text-white" />
+          <!-- Formulario -->
+          <form @submit.prevent="isRegister ? onRegister() : onLogin()" class="space-y-4">
+            <!-- Nombre solo en registro -->
+            <div v-if="isRegister">
+              <label class="block text-sm font-medium text-gray-200">Nombre</label>
+              <input 
+                v-model="name" 
+                type="text" 
+                required
+                placeholder="Tu nombre"
+                class="w-full p-2 rounded-md border border-gray-600 
+                       bg-gray-700 text-white placeholder-gray-400 
+                       focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label class="block text-sm font-medium text-gray-200">Email</label>
+              <input 
+                v-model="email" 
+                type="email" 
+                required
+                placeholder="Ingresa tu correo"
+                class="w-full p-2 rounded-md border border-gray-600 
+                       bg-gray-700 text-white placeholder-gray-400 
+                       focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
+            <!-- Contraseña -->
+            <div>
+              <label class="block text-sm font-medium text-gray-200">Contraseña</label>
+              <input 
+                v-model="password" 
+                type="password" 
+                required 
+                minlength="6"
+                placeholder="Mínimo 6 caracteres"
+                class="w-full p-2 rounded-md border border-gray-600 
+                       bg-gray-700 text-white placeholder-gray-400 
+                       focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
+            <!-- Botón dinámico -->
+            <button type="submit"
+              :class="isRegister 
+                ? 'w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md shadow transform transition duration-300 hover:scale-105 hover:shadow-lg' 
+                : 'w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow transform transition duration-300 hover:scale-105 hover:shadow-lg'">
+              {{ isRegister ? "Registrarse" : "Login" }}
+            </button>
+          </form>
+
+          <!-- Toggle -->
+          <p class="text-center text-sm text-gray-400 mt-4">
+            {{ isRegister ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?" }}
+            <button @click="isRegister = !isRegister" class="text-blue-400 hover:underline">
+              {{ isRegister ? "Inicia sesión aquí" : "Regístrate aquí" }}
+            </button>
+          </p>
         </div>
-
-        <!-- Email -->
-        <div>
-          <label class="block text-sm font-medium">Email</label>
-          <input v-model="email" type="email" required
-            class="w-full p-2 rounded-md border dark:bg-gray-700 dark:text-white" />
-        </div>
-
-        <!-- Contraseña -->
-        <div>
-          <label class="block text-sm font-medium">Contraseña</label>
-          <input v-model="password" type="password" required minlength="6"
-            class="w-full p-2 rounded-md border dark:bg-gray-700 dark:text-white" />
-        </div>
-
-        <!-- Botón dinámico -->
-        <button type="submit"
-          :class="isRegister 
-            ? 'w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md shadow' 
-            : 'w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow'">
-          {{ isRegister ? "Registrarse" : "Login" }}
-        </button>
-      </form>
-
-      <!-- Toggle -->
-      <p class="text-center text-sm text-gray-600 dark:text-gray-300">
-        {{ isRegister ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?" }}
-        <button @click="isRegister = !isRegister" class="text-blue-500 hover:underline">
-          {{ isRegister ? "Inicia sesión aquí" : "Regístrate aquí" }}
-        </button>
-      </p>
+      </Transition>
     </div>
   </div>
 </template>
@@ -84,35 +111,48 @@ const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
 // Login
 const onLogin = async () => {
   if (!validateEmail(email.value)) {
-    return Swal.fire({ icon: "error", title: "Correo inválido", text: "Introduce un email válido." });
+    return Swal.fire({ icon: "error", text: "Correo inválido" });
   }
-
   const success = await authStore.login(email.value, password.value);
-
   if (success) {
-    Swal.fire({ icon: "success", title: "¡Bienvenido!", text: "Has iniciado sesión correctamente." });
+    Swal.fire({ icon: "success", text: "Bienvenido" });
     router.push("/dashboard");
   } else {
-    Swal.fire({ icon: "error", title: "Error", text: authStore.error || "Credenciales inválidas." });
+    Swal.fire({ icon: "error", text: "Credenciales inválidas" });
   }
 };
 
 // Registro
 const onRegister = async () => {
   if (!validateEmail(email.value)) {
-    return Swal.fire({ icon: "error", title: "Correo inválido", text: "Introduce un email válido." });
+    return Swal.fire({ icon: "error", text: "Correo inválido" });
   }
   if (password.value.length < 6) {
-    return Swal.fire({ icon: "error", title: "Contraseña muy corta", text: "Debe tener al menos 6 caracteres." });
+    return Swal.fire({ icon: "error", text: "La contraseña debe tener al menos 6 caracteres" });
   }
-
   const success = await authStore.register(name.value, email.value, password.value);
-
   if (success) {
-    Swal.fire({ icon: "success", title: "Cuenta creada", text: "Ya puedes usar tu nueva cuenta." });
+    Swal.fire({ icon: "success", text: "Cuenta creada con éxito" });
     router.push("/dashboard");
   } else {
-    Swal.fire({ icon: "error", title: "Error", text: authStore.error || "No se pudo registrar el usuario." });
+    Swal.fire({ icon: "error", text: "No se pudo registrar el usuario" });
   }
 };
 </script>
+
+<style scoped>
+/* Animación de transición entre login y registro */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.4s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+</style>
