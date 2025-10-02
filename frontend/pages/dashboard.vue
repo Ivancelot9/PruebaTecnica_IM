@@ -26,7 +26,7 @@
         <p class="font-semibold">👋 Guía rápida:</p>
         <ul class="list-disc list-inside text-sm mt-2 space-y-1">
           <li>✍️ Usa el formulario para <strong>crear nuevas tareas</strong>.</li>
-          <li>📌 Organiza tus tareas en el tablero estilo <strong>Trello</strong>.</li>
+          <li>📌 Organiza tus tareas en el tablero estilo </li>
           <li>✅ Arrastra y suelta para cambiar de estado (Pendiente → En Progreso → Terminada).</li>
           <li>🗑️ Haz clic en <strong>Eliminar</strong> si ya no la necesitas.</li>
         </ul>

@@ -2,7 +2,7 @@
 @file       TaskBoard.vue
 @project    To-Do App (Prueba Técnica)
 @module     Frontend - Components
-@purpose    Tablero estilo Trello con drag & drop (sin duplicados)
+@purpose    Tablero estilo Trello con drag & drop 
 ======================================== -->
 <template>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
