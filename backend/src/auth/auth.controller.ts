@@ -5,8 +5,8 @@
 // @purpose    Endpoints de autenticación (registro, login, perfil)
 // @description
 //   Expone los endpoints HTTP para:
-//   - POST /auth/register → crear usuario nuevo
-//   - POST /auth/login    → iniciar sesión y obtener JWT
+//   - POST /auth/register → crear usuario nuevo y devolver { token, user }
+//   - POST /auth/login    → iniciar sesión y devolver { token, user }
 //   - GET  /auth/me       → devolver usuario autenticado (requiere JWT)
 // ========================================
 
@@ -21,31 +21,32 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   /**
-   * @route POST /auth/register
-   * @summary Crea un usuario nuevo (contraseña encriptada con bcrypt)
+   * @route   POST /auth/register
+   * @summary Registra un nuevo usuario y devuelve token + datos de usuario
    */
   @Post('register')
-  register(@Body() dto: RegisterDto) {
+  async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
   /**
-   * @route POST /auth/login
-   * @summary Verifica credenciales y devuelve { access_token }
+   * @route   POST /auth/login
+   * @summary Verifica credenciales y devuelve token + datos de usuario
    */
   @Post('login')
-  login(@Body() dto: LoginDto) {
+  async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
 
   /**
-   * @route GET /auth/me
-   * @summary Devuelve el payload del usuario autenticado
+   * @route   GET /auth/me
+   * @summary Devuelve los datos del usuario autenticado (payload del JWT)
    * @guard   Requiere Authorization: Bearer <token>
    */
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  me(@Req() req: any) {
-    return req.user; // { userId, email, name }
+  async me(@Req() req: any) {
+    // req.user viene del JwtStrategy.validate()
+    return { user: req.user };
   }
 }

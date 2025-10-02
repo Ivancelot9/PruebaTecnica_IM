@@ -26,49 +26,84 @@ export const useTasksStore = defineStore('tasks', {
       this.error = null
       try {
         const authStore = useAuthStore()
-        const { data } = await axios.get('http://localhost:3001/tasks', {
+        const config = useRuntimeConfig()
+
+        console.log("👉 Fetch tasks API:", `${config.public.apiBaseUrl}/tasks`)
+
+        const { data } = await axios.get(`${config.public.apiBaseUrl}/tasks`, {
           params: filters,
           headers: { Authorization: `Bearer ${authStore.token}` }
         })
         this.tasks = data
       } catch (err) {
         this.error = err.response?.data?.message || 'Error al obtener tareas'
+        console.error("❌ Error fetchTasks:", this.error)
       } finally {
         this.loading = false
       }
     },
+
     async addTask(task) {
       try {
         const authStore = useAuthStore()
-        const { data } = await axios.post('http://localhost:3001/tasks', task, {
+        const config = useRuntimeConfig()
+
+        const { data } = await axios.post(`${config.public.apiBaseUrl}/tasks`, task, {
           headers: { Authorization: `Bearer ${authStore.token}` }
         })
         this.tasks.push(data)
       } catch (err) {
         this.error = err.response?.data?.message || 'Error al agregar tarea'
+        console.error("❌ Error addTask:", this.error)
       }
     },
+
     async updateTask(id, updates) {
       try {
         const authStore = useAuthStore()
-        const { data } = await axios.put(`http://localhost:3001/tasks/${id}`, updates, {
+        const config = useRuntimeConfig()
+
+        const { data } = await axios.put(`${config.public.apiBaseUrl}/tasks/${id}`, updates, {
           headers: { Authorization: `Bearer ${authStore.token}` }
         })
         const index = this.tasks.findIndex(t => t.id === id)
         if (index !== -1) this.tasks[index] = data
       } catch (err) {
         this.error = err.response?.data?.message || 'Error al actualizar tarea'
+        console.error("❌ Error updateTask:", this.error)
       }
     },
+
     async deleteTask(id) {
       try {
         const authStore = useAuthStore()
-        await axios.delete(`http://localhost:3001/tasks/${id}`, {
+        const config = useRuntimeConfig()
+
+        await axios.delete(`${config.public.apiBaseUrl}/tasks/${id}`, {
           headers: { Authorization: `Bearer ${authStore.token}` }
         })
         this.tasks = this.tasks.filter(t => t.id !== id)
       } catch (err) {
         this.error = err.response?.data?.message || 'Error al eliminar tarea'
+        console.error("❌ Error deleteTask:", this.error)
+      }
+    },
+
+    async completeTask(id, completed = true) {
+      try {
+        const authStore = useAuthStore()
+        const config = useRuntimeConfig()
+
+        const { data } = await axios.patch(`${config.public.apiBaseUrl}/tasks/${id}/complete`, 
+          { completed }, 
+          { headers: { Authorization: `Bearer ${authStore.token}` } }
+        )
+
+        const index = this.tasks.findIndex(t => t.id === id)
+        if (index !== -1) this.tasks[index] = data
+      } catch (err) {
+        this.error = err.response?.data?.message || 'Error al cambiar estado de la tarea'
+        console.error("❌ Error completeTask:", this.error)
       }
     }
   }

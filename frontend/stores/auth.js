@@ -3,11 +3,6 @@
 // @project    To-Do App (Prueba Técnica)
 // @module     Frontend - Store de Autenticación
 // @purpose    Manejo centralizado del estado de usuario
-// @description
-//   - Guarda información del usuario autenticado
-//   - Maneja login, registro y logout
-//   - Almacena token JWT para peticiones seguras
-//   - Conecta con el backend vía Axios
 // ========================================
 
 import { defineStore } from 'pinia'
@@ -26,18 +21,17 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const config = useRuntimeConfig()
-        console.log("👉 Login API:", `${config.public.apiBaseUrl}/auth/login`)
-
         const { data } = await axios.post(`${config.public.apiBaseUrl}/auth/login`, { email, password })
         this.user = data.user
         this.token = data.token
 
-        // Guardar token en localStorage
-        localStorage.setItem("token", data.token)
+        // Guardar token
+        if (process.client) {
+          localStorage.setItem("token", data.token)
+        }
         return true
       } catch (err) {
         this.error = err.response?.data?.message || "Correo o contraseña inválidos"
-        console.error("❌ Error login:", this.error)
         return false
       } finally {
         this.loading = false
@@ -49,28 +43,43 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const config = useRuntimeConfig()
-        console.log("👉 Register API:", `${config.public.apiBaseUrl}/auth/register`)
-
         const { data } = await axios.post(`${config.public.apiBaseUrl}/auth/register`, { name, email, password })
         this.user = data.user
         this.token = data.token
 
-        // Guardar token en localStorage
-        localStorage.setItem("token", data.token)
+        if (process.client) {
+          localStorage.setItem("token", data.token)
+        }
         return true
       } catch (err) {
         this.error = err.response?.data?.message || "Este usuario ya está registrado"
-        console.error("❌ Error registro:", this.error)
         return false
       } finally {
         this.loading = false
       }
     },
 
+    async me() {
+      // Restaurar datos del usuario si ya hay token
+      if (!this.token) return
+      try {
+        const config = useRuntimeConfig()
+        const { data } = await axios.get(`${config.public.apiBaseUrl}/auth/me`, {
+          headers: { Authorization: `Bearer ${this.token}` }
+        })
+        this.user = data
+      } catch (err) {
+        console.error("❌ Error al restaurar sesión:", err)
+        this.logout()
+      }
+    },
+
     logout() {
       this.user = null
       this.token = null
-      localStorage.removeItem("token")
+      if (process.client) {
+        localStorage.removeItem("token")
+      }
     }
   }
 })

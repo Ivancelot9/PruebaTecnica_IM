@@ -3,6 +3,11 @@
 // @project    To-Do App (Prueba Técnica)
 // @module     Backend - Auth (Service)
 // @purpose    Registro y login con JWT
+// @description
+//   - Maneja registro y login de usuarios
+//   - Hashea contraseñas con bcrypt
+//   - Genera JWT con payload del usuario
+//   - Devuelve token + datos seguros del usuario
 // ========================================
 
 import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
@@ -19,6 +24,9 @@ export class AuthService {
     private readonly jwt: JwtService,
   ) {}
 
+  /**
+   * Registro de usuario
+   */
   async register(dto: RegisterDto) {
     if (!dto?.email || !dto?.password || !dto?.name) {
       throw new BadRequestException('Faltan campos: email, password, name');
@@ -33,10 +41,18 @@ export class AuthService {
       data: { email: dto.email, password: hashedPassword, name: dto.name },
     });
 
+    const payload = { sub: user.id, email: user.email, name: user.name };
+    const access_token = await this.jwt.signAsync(payload);
+
+    // No devolver la contraseña
     const { password, ...safeUser } = user;
-    return safeUser;
+
+    return { token: access_token, user: safeUser };
   }
 
+  /**
+   * Login de usuario
+   */
   async login(dto: LoginDto) {
     if (!dto?.email || !dto?.password) {
       throw new BadRequestException('Faltan campos: email y password');
@@ -51,6 +67,9 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email, name: user.name };
     const access_token = await this.jwt.signAsync(payload);
 
-    return { access_token };
+    // No devolver la contraseña
+    const { password, ...safeUser } = user;
+
+    return { token: access_token, user: safeUser };
   }
 }
