@@ -15,7 +15,6 @@
       <h1 class="text-xl font-bold">To-Do App</h1>
       <nav class="space-x-4">
         <NuxtLink to="/dashboard" class="hover:underline">Dashboard</NuxtLink>
-        <NuxtLink to="/tasks" class="hover:underline">Tareas</NuxtLink>
         <button 
           @click="onLogout" 
           class="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 rounded-md shadow">

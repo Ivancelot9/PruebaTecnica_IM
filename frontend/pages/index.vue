@@ -1,5 +1,30 @@
+<!-- ========================================
+@file       index.vue
+@project    To-Do App (Prueba Técnica)
+@module     Frontend - Pages
+@purpose    Página inicial (landing mínima)
+@description
+  - Redirige automáticamente al login
+======================================== -->
+
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <h1 class="text-2xl font-bold text-blue-600">Página de Login</h1>
+  <div class="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+    <p class="text-lg animate-pulse">Redirigiendo al login...</p>
   </div>
 </template>
+
+<script setup>
+// ========================================
+// Configuración de redirección
+// ========================================
+definePageMeta({ layout: false }) // Evita layouts innecesarios
+
+import { useRouter } from 'vue-router'
+import { onMounted } from 'vue'
+
+const router = useRouter()
+
+onMounted(() => {
+  router.push('/login')
+})
+</script>
